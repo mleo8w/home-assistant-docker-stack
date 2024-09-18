@@ -1,37 +1,24 @@
 version: "3.7"
 services:
-   
-  portainer:
-    image: portainer/portainer:latest
-    container_name: portainer
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock 
-    ports:
-     - 9000:9000
-    networks:
-      - backend
-    restart: always
-    environment:
-      - TZ=$SET_TZ
       
   mqtt:
     container_name: mqtt
     image: eclipse-mosquitto:latest
     volumes:
-      - ./mqtt:/mosquitto/
+      - /home/pi/mqtt:/mosquitto/
     ports:
       - 1883:1883
       - 9001:9001
     network_mode: host
     restart: always
     environment:
-      TZ: $SET_TZ
+      TZ: Asia/Singapore
 
   hass:
     container_name: hass
     image: homeassistant/home-assistant:$HA_VER
     volumes:
-      - ./hass_config:/config
+      - /home/pi/hass_config:/config
       - /etc/localtime:/etc/localtime:ro
     network_mode: host
     ports:
@@ -39,14 +26,14 @@ services:
     privileged: true
     restart: always
     environment:
-      TZ: $SET_TZ
+      TZ: Asia/Singapore
 
  
   nodered:
     container_name: nodered
     image: nodered/node-red:$NR_VER
     volumes:
-      - ./node-red:/data
+      - /home/pi/node-red:/data
       - /etc/localtime:/etc/localtime:ro 
       - /etc/timezone:/etc/timezone:ro
     ports:
@@ -55,23 +42,40 @@ services:
       - backend
     restart: always
     environment:
-      TZ: $SET_TZ
+      TZ: Asia/Singapore
 
   zigbee2mqtt:
     container_name: zigbee2mqtt
-    image: koenkk/zigbee2mqtt:$Z2M_VER
+    image: koenkk/zigbee2mqtt:latest
     volumes:
-      - ./zigbee2mqtt:/app/data
+      - /home/pi/zigbee2mqtt:/app/data
     expose:
       - "8888"
     devices:
-      - /dev/ttyACM0:/dev/ttyACM0
+      - /dev/ttyUSB0:/dev/ttyUSB0  # Silicon Labs CP210x UART Bridge (Zigbee)
     privileged: true 
     restart: always
     networks:
       - backend
     environment:
-      TZ: $SET_TZ
+      TZ: Asia/Singapore
+
+   zigbee_sniffer:
+    container_name: zigbee_sniffer
+    image: koenkk/zigbee2mqtt:latest
+    volumes:
+      - /home/pi/zigbee_sniffer:/app/data
+    expose:
+      - "8889"
+    devices:
+      - /dev/ttyACM0:/dev/ttyACM0  # Texas Instruments CC2531 ZigBee (Zigbee Sniffer)
+    privileged: true
+    restart: always
+    networks:
+      - backend
+    environment:
+      TZ: Asia/Singapore
+      
 
 networks:
   backend:
