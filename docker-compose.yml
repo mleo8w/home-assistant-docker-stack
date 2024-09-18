@@ -1,14 +1,13 @@
 version: "3.7"
 services:
-      
   mqtt:
     container_name: mqtt
     image: eclipse-mosquitto:latest
     volumes:
       - /home/pi/mqtt:/mosquitto/
     ports:
-      - 1883:1883
-      - 9001:9001
+      - "1883:1883"
+      - "9001:9001"
     network_mode: host
     restart: always
     environment:
@@ -16,28 +15,27 @@ services:
 
   hass:
     container_name: hass
-    image: homeassistant/home-assistant:$HA_VER
+    image: homeassistant/home-assistant:latest
     volumes:
       - /home/pi/hass_config:/config
       - /etc/localtime:/etc/localtime:ro
     network_mode: host
     ports:
-      - 8123:8123
+      - "8123:8123"
     privileged: true
     restart: always
     environment:
       TZ: Asia/Singapore
 
- 
   nodered:
     container_name: nodered
-    image: nodered/node-red:$NR_VER
+    image: nodered/node-red:latest
     volumes:
       - /home/pi/node-red:/data
-      - /etc/localtime:/etc/localtime:ro 
+      - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
     ports:
-     - 1880:1880
+      - "1880:1880"
     networks:
       - backend
     restart: always
@@ -52,15 +50,15 @@ services:
     expose:
       - "8888"
     devices:
-      - /dev/ttyUSB0:/dev/ttyUSB0  # Silicon Labs CP210x UART Bridge (Zigbee)
-    privileged: true 
+      - /dev/ttyUSB0:/dev/ttyUSB0
+    privileged: true
     restart: always
     networks:
       - backend
     environment:
       TZ: Asia/Singapore
 
-   zigbee_sniffer:
+  zigbee_sniffer:
     container_name: zigbee_sniffer
     image: koenkk/zigbee2mqtt:latest
     volumes:
@@ -68,16 +66,15 @@ services:
     expose:
       - "8889"
     devices:
-      - /dev/ttyACM0:/dev/ttyACM0  # Texas Instruments CC2531 ZigBee (Zigbee Sniffer)
+      - /dev/ttyACM0:/dev/ttyACM0
     privileged: true
     restart: always
     networks:
       - backend
     environment:
       TZ: Asia/Singapore
-      
 
 networks:
   backend:
-    external:
-      name: backend
+    external: true
+    name: backend
